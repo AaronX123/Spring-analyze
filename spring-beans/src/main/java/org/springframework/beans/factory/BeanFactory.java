@@ -21,6 +21,11 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * 生词
+ * contrast n.v.明显差异；对比；(摄影或绘画中的)颜色反差，明暗对比
+ *
+ *
+ *
  * The root interface for accessing a Spring bean container.
  * This is the basic client view of a bean container;
  * further interfaces such as {@link ListableBeanFactory} and
@@ -50,13 +55,16 @@ import org.springframework.lang.Nullable;
  * for example). See chapters 4 and 11 of "Expert One-on-One J2EE Design and
  * Development" for a discussion of the benefits of this approach.
  *
- * 这个类的关键在于BeanFactory是所有应用组卷注册的中心
+ * 这个方法的关键在于BeanFactory是所有应用组件注册的中心，并且集中配置应用的各种组件，单个对象不再需要读取属性文件。
  *
  * <p>Note that it is generally better to rely on Dependency Injection
  * ("push" configuration) to configure application objects through setters
  * or constructors, rather than use any form of "pull" configuration like a
  * BeanFactory lookup. Spring's Dependency Injection functionality is
  * implemented using this BeanFactory interface and its subinterfaces.
+ *
+ *  需要注意的是依赖注入通常情况下使用Setter/构造器对Bean进行配置要比依赖查找进行配置更好。Spring
+ *  的依赖注入是通过BeanFactory及子接口的实现类实现的。
  *
  * <p>Normally a BeanFactory will load bean definitions stored in a configuration
  * source (such as an XML document), and use the {@code org.springframework.beans}
@@ -66,15 +74,25 @@ import org.springframework.lang.Nullable;
  * properties file, etc. Implementations are encouraged to support references
  * amongst beans (Dependency Injection).
  *
+ * 通常情况下，BeanFactory会从XML或者@ScanBasePackeges指定的路径下加载BeanDefinition.
+ * 然而，实现类可以直接在Java代码中返回Java对象，对于如何存储Bean没有进行限制。鼓励实现支持
+ * bean之间的引用（依赖注入）
+ *
+ *
  * <p>In contrast to the methods in {@link ListableBeanFactory}, all of the
  * operations in this interface will also check parent factories if this is a
  * {@link HierarchicalBeanFactory}. If a bean is not found in this factory instance,
  * the immediate parent factory will be asked. Beans in this factory instance
  * are supposed to override beans of the same name in any parent factory.
  *
+ * 与ListableBeanFactory截然不同的是，如果这个子接口是HierarchicalBeanFactory,则所有的操作均会检查父Factory，
+ * 如果一个Bean没有在Factory实例中被找到，则会去到最近的父Factory中查询。Factory允许重写Bean。
+ *
  * <p>Bean factory implementations should support the standard bean lifecycle interfaces
  * as far as possible. The full set of initialization methods and their standard order is:
  * <ol>
+ *     BeanFactory的实现类应该尽可能的支持标准Bean生命周期接口，方法如下：
+ *
  * <li>BeanNameAware's {@code setBeanName}
  * <li>BeanClassLoaderAware's {@code setBeanClassLoader}
  * <li>BeanFactoryAware's {@code setBeanFactory}
