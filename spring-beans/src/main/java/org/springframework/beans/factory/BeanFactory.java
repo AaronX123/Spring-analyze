@@ -27,6 +27,9 @@ import org.springframework.lang.Nullable;
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * are available for specific purposes.
  *
+ * 这是访问Spring容器最小的接口单位。是bean容器视图的基础，更多接口像ListableBeanFactory,ConfigurableBeanFactory
+ * 是对于特点目的而产生的。
+ *
  * <p>This interface is implemented by objects that hold a number of bean definitions,
  * each uniquely identified by a String name. Depending on the bean definition,
  * the factory will return either an independent instance of a contained object
@@ -37,11 +40,17 @@ import org.springframework.lang.Nullable;
  * 2.0, further scopes are available depending on the concrete application
  * context (e.g. "request" and "session" scopes in a web environment).
  *
+ * 本接口是被持有许多以String类型的名字为Key,BeanDefinition为Value的对象所实现.
+ * 根据BeanDefinition将会返回实例（如果是Prototype则返回独一无二的新实例，如果是Singleton则返回已经创建的单例对象）
+ * 实例的类型依赖于BeanFactory的配置，在web环境中，类型会有更多，如request、session。
+ *
  * <p>The point of this approach is that the BeanFactory is a central registry
  * of application components, and centralizes configuration of application
  * components (no more do individual objects need to read properties files,
  * for example). See chapters 4 and 11 of "Expert One-on-One J2EE Design and
  * Development" for a discussion of the benefits of this approach.
+ *
+ * 这个类的关键在于BeanFactory是所有应用组卷注册的中心
  *
  * <p>Note that it is generally better to rely on Dependency Injection
  * ("push" configuration) to configure application objects through setters

@@ -46,13 +46,16 @@ import org.springframework.util.CollectionUtils;
  * Base class for AOP proxy configuration managers.
  * These are not themselves AOP proxies, but subclasses of this class are
  * normally factories from which AOP proxy instances are obtained directly.
+ * AOP配置管理的基类
  *
  * <p>This class frees subclasses of the housekeeping of Advices
  * and Advisors, but doesn't actually implement proxy creation
  * methods, which are provided by subclasses.
+ * 本类可以使得子类不需要去关心Advice和Advisors，但是本类本身并不实现任何创建代理方法，这是属于子类来干的事
  *
  * <p>This class is serializable; subclasses need not be.
  * This class is used to hold snapshots of proxies.
+ * 这个类是实现了Serializable接口的，但是子类不一定需要实现它，本类用来存放代理类快照
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
