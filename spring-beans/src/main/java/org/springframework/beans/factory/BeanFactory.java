@@ -23,6 +23,19 @@ import org.springframework.lang.Nullable;
 /**
  * 生词
  * contrast n.v.明显差异；对比；(摄影或绘画中的)颜色反差，明暗对比
+ * dereference v.间接引用，间接访问
+ * retain v.保持，持有；聘请（律师）等
+ * canonical adj.经典的，（数学表达式）最简洁的，被收入真经篇目的
+ * territory n.领土；版图；地盘
+ * extensive adj.广大的；广阔的；广博的
+ * retrieval n.取回；检索
+ * on-demand 按需
+ * generic adj.一般的，普通的；n.仿制药
+ * genetic adj.基因的
+ * hierarchical adj.按等级划分的；等级制度的
+ * inherit v.继承
+ * necessarily adv.必然的；不可避免的
+ * indicate v.表明；暗示；示意
  *
  *
  *
@@ -147,6 +160,9 @@ public interface BeanFactory {
 	 * beans <i>created</i> by the FactoryBean. For example, if the bean named
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
+	 *
+	 * 用来间接引用一个FactoryBean实例并且与FactoryBean创建的Bean区分开。例如：如果一个FactoryBean叫作myJndiObject
+	 * ,那么get方法获取到的是BeanFactory而不是myJndiObject
 	 */
 	String FACTORY_BEAN_PREFIX = "&";
 
@@ -162,6 +178,10 @@ public interface BeanFactory {
 	 * @return an instance of the bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
 	 * @throws BeansException if the bean could not be obtained
+	 *
+	 * 返回一个指定的Bean共享的实例或者单独的实例，这取决于Scope。这个方法允许一个Spring BeanFactory用来代替单例/原型
+	 * 设计模式。调用者可能和单例返回的实例保持引用。Bean的别名将会被转换成规范的名字。如果Bean无法在当前Factory中被查找到，则
+	 * 会到父Factory中查询。
 	 */
 	Object getBean(String name) throws BeansException;
 
@@ -179,6 +199,9 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
 	 * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
 	 * @throws BeansException if the bean could not be created
+	 *
+	 * 返回指定bean的实例，该实例可以是共享的，也可以是独立的。该方法的行为和getBean(String)是一样的，但是提供一种能够
+	 * 安全的测量bean类型的方法，如果bean不满足规范会抛出BeanNotOfRequiredTypeException
 	 */
 	<T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
@@ -195,6 +218,9 @@ public interface BeanFactory {
 	 * the affected bean isn't a prototype
 	 * @throws BeansException if the bean could not be created
 	 * @since 2.5
+	 *
+	 * 返回指定bean的实例，该实例可以是共享的，也可以是独立的。
+	 * 允许指定显式构造函数参数/工厂方法参数，重写bean定义中指定的默认参数（如果有）。
 	 */
 	Object getBean(String name, Object... args) throws BeansException;
 
@@ -211,6 +237,10 @@ public interface BeanFactory {
 	 * @throws BeansException if the bean could not be created
 	 * @since 3.0
 	 * @see ListableBeanFactory
+	 *
+	 * 返回匹配requiredType的bean，如果有。
+	 * 此方法会进入ListableBeanFactory通过类型进行查找，但是有时会通过将类型转换成传统的名字进行查找。
+	 * 对于更多的跨bean集的取出bean的操作，通过ListableBeanFactory或者BeanFactoryUtils来操作。
 	 */
 	<T> T getBean(Class<T> requiredType) throws BeansException;
 
@@ -241,6 +271,8 @@ public interface BeanFactory {
 	 * @return a corresponding provider handle
 	 * @since 5.1
 	 * @see #getBeanProvider(ResolvableType)
+	 *
+	 * 返回指定bean的提供者，允许延迟按需检索实例，包括可用性和唯一性选项。
 	 */
 	<T> ObjectProvider<T> getBeanProvider(Class<T> requiredType);
 
@@ -268,12 +300,18 @@ public interface BeanFactory {
 	 * <p>If this factory is hierarchical, will ask any parent factory if the bean cannot
 	 * be found in this factory instance.
 	 * <p>If a bean definition or singleton instance matching the given name is found,
-	 * this method will return {@code true} whether the named bean definition is concrete
-	 * or abstract, lazy or eager, in scope or not. Therefore, note that a {@code true}
-	 * return value from this method does not necessarily indicate that {@link #getBean}
-	 * will be able to obtain an instance for the same name.
+	 * 	 * this method will return {@code true} whether the named bean definition is concrete
+	 * 	 * or abstract, lazy or eager, in scope or not. Therefore, note that a {@code true}
+	 * 	 * return value from this method does not necessarily indicate that {@link #getBean}
+	 * 	 * will be able to obtain an instance for the same name.
 	 * @param name the name of the bean to query
 	 * @return whether a bean with the given name is present
+	 *
+	 * 这个bean工厂是否包含一个bean定义或外部注册的具有给定名称的singleton实例？
+	 * 如果给定的是一个别名，则会将其转换成与之一致的常规bean name。
+	 * 如果在当前工厂中找不到bean，则会向其所有父类工厂进行查询
+	 * 如果给定的名字匹配到一个BeanDefinition或者单例实例，这个方法无论这个名字是具体的还是抽象的都会
+	 * 返回true.因此，请注意当返回true时，并不代表getBean返回的实例也是同一个name
 	 */
 	boolean containsBean(String name);
 
@@ -291,6 +329,11 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
 	 * @see #getBean
 	 * @see #isPrototype
+	 *
+	 * 是单例吗？如果是的话，getBean会总返回同一个实例吗？
+	 * 请注意的是，这个方法返回false并不明确的表示它是一个独立的实例。false仅仅表示这个bean不是单例
+	 * ，可能和scope一致。使用isPrototype方法去明确这个独立的实例的scope是否为Prototype。
+	 *
 	 */
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
@@ -326,6 +369,9 @@ public interface BeanFactory {
 	 * @since 4.2
 	 * @see #getBean
 	 * @see #getType
+	 *
+	 * 检查具有给定名称的bean是否与指定类型匹配。更具体地说，检查给定名称的getBean调用是否会返回
+	 * 可分配给指定目标类型的对象。
 	 */
 	boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException;
 
