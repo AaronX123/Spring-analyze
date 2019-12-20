@@ -24,16 +24,31 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * 生词
+ * enumerate v.列举，枚举
+ * scenario n.设想；方案；预测；剧情
+ * transparent adj.透明的；清澈的
+ * exception 异常；例外
+ * encapsulate v.概述，概况，压缩，封装
+ *
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
  * that can enumerate all their bean instances, rather than attempting bean lookup
  * by name one by one as requested by clients. BeanFactory implementations that
  * preload all their bean definitions (such as XML-based factories) may implement
  * this interface.
  *
+ * 作为BeanFactory的拓展接口，该接口的由能够枚举所有bean实例的BeanFactory实现，而不是按照
+ * 调用方通过bean name 一个一个查找。实现了预加载BeanDefinition的BeanFactory实例可能也实现
+ * 了本接口，如基于XML的BeanFactory。
+ *
+ *
  * <p>If this is a {@link HierarchicalBeanFactory}, the return values will <i>not</i>
  * take any BeanFactory hierarchy into account, but will relate only to the beans
  * defined in the current factory. Use the {@link BeanFactoryUtils} helper class
  * to consider beans in ancestor factories too.
+ *
+ * 如果这是{@link HierarchicalBeanFactory}，则返回值将不考虑任何BeanFactory层次结构，而只
+ * 与当前工厂中定义的bean相关。使用{@link BeanFactoryUtils}助手类也可以考虑祖先工厂中的bean。
  *
  * <p>The methods in this interface will just respect bean definitions of this factory.
  * They will ignore any singleton beans that have been registered by other means like
@@ -45,9 +60,20 @@ import org.springframework.lang.Nullable;
  * scenarios, all beans will be defined by external bean definitions anyway, so most
  * applications don't need to worry about this differentiation.
  *
+ * 这个接口中的方法将只考虑这个工厂的bean定义。他们将忽略任何通过其他方式注册的单例bean，比如
+ * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
+ * {@code registerSingleton}方法，除了{@code getBeanNamesOfType}和{@code getBeansOfType}
+ * 这两个方法也将检查手动注册的单例。当然，BeanFactory的{@code getBean}
+ * 也允许透明地访问这种特殊的bean。然而，在典型的场景中，所有bean都将由外部bean定义来定义，因此
+ * 大多数应用程序不需要担心这种差异。
+ *
  * <p><b>NOTE:</b> With the exception of {@code getBeanDefinitionCount}
  * and {@code containsBeanDefinition}, the methods in this interface
  * are not designed for frequent invocation. Implementations may be slow.
+ *
+ * 注意：除了{@code getBeanDefinitionCount}
+ * 以及{@code containsBeanDefinition}，这个接口中的方法不是为频繁调用而设计的。实现可能很慢。
+ *
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -65,6 +91,9 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * @param beanName the name of the bean to look for
 	 * @return if this bean factory contains a bean definition with the given name
 	 * @see #containsBean
+	 *
+	 * 检查是否这个BeanFactory包含这个名字的bean实例，不考虑各个层次上的BeanFactory参与，
+	 * 并且忽略任何通过其它除了BeanDefinition方式注册的单例bean
 	 */
 	boolean containsBeanDefinition(String beanName);
 
@@ -74,6 +103,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	 * and ignores any singleton beans that have been registered by
 	 * other means than bean definitions.
 	 * @return the number of beans defined in the factory
+	 *
+	 * 返回此BeanFactory中含有的BeanDefinition个数
 	 */
 	int getBeanDefinitionCount();
 

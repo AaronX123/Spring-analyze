@@ -20,29 +20,52 @@ import org.springframework.core.AttributeAccessor;
 import org.springframework.lang.Nullable;
 
 /**
+ * 生词
+ * participate v.参与
+ * fine-grained adj.细粒的；有细密纹理的
+ * contract n.合同，契约 v.使收缩，缩小，感染
+ *
+ *
  * Interface to be implemented by objects used within a {@link BeanFactory} which
  * are themselves factories for individual objects. If a bean implements this
  * interface, it is used as a factory for an object to expose, not directly as a
  * bean instance that will be exposed itself.
+ * 接口将被一个是用BeanFactory的对象实现，这些对象本身就是一个单独的工厂。
+ * 如果一个bean实现了此接口，则它是被作为一个工厂公开，而不是直接公开自己的bean
+ *
  *
  * <p><b>NB: A bean that implements this interface cannot be used as a normal bean.</b>
  * A FactoryBean is defined in a bean style, but the object exposed for bean
  * references ({@link #getObject()}) is always the object that it creates.
  *
+ * 一个实现了此类的bean并不能被作为普通bean使用，一个FactoryBean是被定义为一个bean类型，但是
+ * 暴露的bean引用总是通过getObject创建出来的。
+ *
  * <p>FactoryBeans can support singletons and prototypes, and can either create
  * objects lazily on demand or eagerly on startup. The {@link SmartFactoryBean}
  * interface allows for exposing more fine-grained behavioral metadata.
+ *
+ * FactoryBean支持单例和原型模式，并且能够在启动时选择懒加载或者提前加载。SmartFactoryBean
+ * 接口支持暴露更多细节信息。
  *
  * <p>This interface is heavily used within the framework itself, for example for
  * the AOP {@link org.springframework.aop.framework.ProxyFactoryBean} or the
  * {@link org.springframework.jndi.JndiObjectFactoryBean}. It can be used for
  * custom components as well; however, this is only common for infrastructure code.
  *
+ * 这个接口在框架中被大量使用，例如AOP中ProxyFactoryBean或者JndiObjectFactoryBean.它也可以用
+ * 来定制组件；然而，这只是基础结构代码的常见情况。
+ *
  * <p><b>{@code FactoryBean} is a programmatic contract. Implementations are not
  * supposed to rely on annotation-driven injection or other reflective facilities.</b>
  * {@link #getObjectType()} {@link #getObject()} invocations may arrive early in
  * the bootstrap process, even ahead of any post-processor setup. If you need access
  * other beans, implement {@link BeanFactoryAware} and obtain them programmatically.
+ *
+ * FactoryBean是一个编程上的约定。实现类不应该依赖于基于注解的注入或者其它基于反射的组件。
+ * getObject/getObjectType的调用可能早于启动过程，甚至早于后处理器。如果你需要访问其它bean,
+ * 则需要实现BeanFactoryAware接口。
+ *
  *
  * <p>Finally, FactoryBean objects participate in the containing BeanFactory's
  * synchronization of bean creation. There is usually no need for internal
