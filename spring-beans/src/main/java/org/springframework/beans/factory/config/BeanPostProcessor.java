@@ -22,7 +22,7 @@ import org.springframework.lang.Nullable;
 /**
  * 生词
  * subsequently adv.随后，后来
- * populate v.居住于；生活于；构成...的人口;迁移；输入数据
+ * populate v.居住于；生活于；构成...的人口;迁移；输入数据；填充数据
  * in case of 如果发生...;若在...的情况下
  * short-circuit v.使短路；做事抄近路，走捷径
  *

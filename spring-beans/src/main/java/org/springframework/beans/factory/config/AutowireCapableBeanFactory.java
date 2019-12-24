@@ -17,6 +17,7 @@
 package org.springframework.beans.factory.config;
 
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeConverter;
@@ -26,20 +27,41 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.lang.Nullable;
 
 /**
+ * 生词
+ * provided that 假如；前提是
+ * integration n.整合；一体化，融合
+ * integrate v.使合并；使加入
+ * leverage n.影响力，杠杆作用 v.举债经营
+ * coverage n.新闻报道，信息质量；覆盖范围
+ * That said 也就是说
+ * greediest adj.贪婪的；贪心的；渴望的
+ * appropriate adj.合适的；v.盗用，挪用，侵吞；
+ * fine-grained 细粒度的
+ * Instantiate 实例化
+ *
+ *
  * Extension of the {@link org.springframework.beans.factory.BeanFactory}
  * interface to be implemented by bean factories that are capable of
  * autowiring, provided that they want to expose this functionality for
  * existing bean instances.
  *
+ * 作为BeanFactory的扩展为了支持自动装配，前提是它们希望为现有的bean实例公开该
+ * 功能
  * <p>This subinterface of BeanFactory is not meant to be used in normal
  * application code: stick to {@link org.springframework.beans.factory.BeanFactory}
  * or {@link org.springframework.beans.factory.ListableBeanFactory} for
  * typical use cases.
  *
+ * 此BeanFactory接口并不意味着被普通应用代码所使用，对于通常需求请使用BeanFactory和
+ * ListableBeanFactory。
+ *
  * <p>Integration code for other frameworks can leverage this interface to
  * wire and populate existing bean instances that Spring does not control
  * the lifecycle of. This is particularly useful for WebWork Actions and
  * Tapestry Page objects, for example.
+ *
+ * 其他框架的集成代码可以利用这个接口来连接和填充现有的Bean实例，而Spring不控制生命周期。
+ * 这对于WebWork Actions和 Tapestry Page对象来说特别有用。
  *
  * <p>Note that this interface is not implemented by
  * {@link org.springframework.context.ApplicationContext} facades,
@@ -48,10 +70,15 @@ import org.springframework.lang.Nullable;
  * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
  * method.
  *
+ * 此接口不被ApplicationContext直接实现，因为应用程序代码很少使用它。
+ * 也就是说，对于一个application context也是可用的通过getAutowireCapableBeanFactory方法。
  * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
  * interface, which exposes the internal BeanFactory even when running in an
  * ApplicationContext, to get access to an AutowireCapableBeanFactory:
  * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
+ *
+ * 你也可以实现BeanFactoryAware接口，来暴露ApplicationContext运行时内部的BeanFactory从而
+ * 访问一个AutowireCapableBeanFactory,直接强转就行。
  *
  * @author Juergen Hoeller
  * @since 04.12.2003
@@ -64,6 +91,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates no externally defined autowiring. Note that
 	 * BeanFactoryAware etc and annotation-driven injection will still be applied.
+	 * 标记是否有其它额外定义 autowiring的。BeanFactoryAware和基于注解的注入仍将应用。
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
@@ -73,6 +101,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring bean properties by name
 	 * (applying to all bean property setters).
+	 * 是否通过bean名称来装配
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
@@ -82,6 +111,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring bean properties by type
 	 * (applying to all bean property setters).
+	 * 是否通过类型来装配
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
@@ -91,6 +121,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates autowiring the greediest constructor that
 	 * can be satisfied (involves resolving the appropriate constructor).
+	 * 表示能够满足的最多构造器个数。
 	 * @see #createBean
 	 * @see #autowire
 	 */
@@ -99,6 +130,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	/**
 	 * Constant that indicates determining an appropriate autowire strategy
 	 * through introspection of the bean class.
+	 * 通过对bean类的内省来确定适当的autowire策略
 	 * @see #createBean
 	 * @see #autowire
 	 * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,
@@ -135,6 +167,12 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @param beanClass the class of the bean to create
 	 * @return the new bean instance
 	 * @throws BeansException if instantiation or wiring failed
+	 *
+	 * 完全的创建一个新的bean实例。
+	 * 对Bean执行完全的初始化，包括应用BeanPostProcessor.
+	 * 这是为了创建一个新的实例，填充带注释的字段和方法，以及应用所有标准bean初始化回调。
+	 * 它并不意味着传统的按名称或按类型自动装配属性，如果要的话使用createBean来实现。
+	 *
 	 */
 	<T> T createBean(Class<T> beanClass) throws BeansException;
 
@@ -147,6 +185,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * use {@link #autowireBeanProperties} for those purposes.
 	 * @param existingBean the existing bean instance
 	 * @throws BeansException if wiring failed
+	 *
+	 * 填充给定的bean实例通过应用后置初始化回调方法。这主要用于（重新）填充注释字段和方法，
+	 * 无论是用于新实例还是反序列化实例。
+	 * 它并不会按着传统的按名称或按类型自动装配属性；为此，请使用autowireBeanProperties.
 	 */
 	void autowireBean(Object existingBean) throws BeansException;
 
@@ -166,12 +208,16 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * if there is no bean definition with the given name
 	 * @throws BeansException if the initialization failed
 	 * @see #initializeBean
+	 *
+	 * 对原始的bean进行配置，装配属性，应用属性，应用工厂的回调，并且应用所有后置处理器。
+	 * 这实际上是initializeBean提供的一个超集，完全应用了相应bean定义指定的配置。
 	 */
 	Object configureBean(Object existingBean, String beanName) throws BeansException;
 
 
 	//-------------------------------------------------------------------------
 	// Specialized methods for fine-grained control over the bean lifecycle
+	// 对bean生命周期进行细粒度控制的专门方法
 	//-------------------------------------------------------------------------
 
 	/**
@@ -190,6 +236,10 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #AUTOWIRE_BY_NAME
 	 * @see #AUTOWIRE_BY_TYPE
 	 * @see #AUTOWIRE_CONSTRUCTOR
+	 *
+	 * 完全的创建一个新bean实例。所有在本接口中定义的常量都支持。
+	 * 对bean执行完全的初始化，包括所有可执行的BeanPostProcessor.这是autowire提供的方法的
+	 * 超集，添加了initialzeBean的逻辑。
 	 */
 	Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
@@ -218,6 +268,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #initializeBean
 	 * @see #applyBeanPostProcessorsBeforeInitialization
 	 * @see #applyBeanPostProcessorsAfterInitialization
+	 *
+	 * 对给定的beanClass进行实例化。支持所有本接口定义的常量。可以通过调用时传递AUTOWIRE_NO来实现
+	 * 仅应用before-instantiation回调。不会对这个bean应用标准BeanPostProcessor回调或者执行任何更多的
+	 * 初始化方法。这个接口为这些需求提供了独一无二的，细粒度的实现如initializeBean。
+	 * 但是，{@link InstantiationAwareBeanPostProcessor}回调将应用于实例的构造（如果适用）。
 	 */
 	Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
@@ -263,6 +318,12 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * if there is no bean definition with the given name
 	 * @throws BeansException if applying the property values failed
 	 * @see #autowireBeanProperties
+	 *
+	 * 将具有给定名称的bean定义的属性值应用于给定的bean实例。bean定义可以定义一个完全独立的bean，
+	 * 重用它的属性值，或者仅仅是用于现有bean实例的属性值。
+	 * 此方法不自动装配bean属性；它只应用显式定义的属性值。使用autowireBeanProperties来自动装配
+	 * 一个已存在的Bean实例。
+	 * 注意：此方法需要存在给定的beanName的BeanDefinition实例。
 	 */
 	void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException;
 
@@ -274,6 +335,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * <p>Note that no bean definition of the given name has to exist
 	 * in the bean factory. The passed-in bean name will simply be used
 	 * for callbacks but not checked against the registered bean definitions.
+	 *
+	 * 请注意，bean工厂中不存在给定名称的bean定义。传入的bean名称将仅用于回调，但不会对照注册的bean定义进行检查
 	 * @param existingBean the existing bean instance
 	 * @param beanName the name of the bean, to be passed to it if necessary
 	 * (only passed to {@link BeanPostProcessor BeanPostProcessors};
@@ -282,6 +345,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @return the bean instance to use, either the original or a wrapped one
 	 * @throws BeansException if the initialization failed
 	 * @see #ORIGINAL_INSTANCE_SUFFIX
+	 *
 	 */
 	Object initializeBean(Object existingBean, String beanName) throws BeansException;
 
@@ -298,6 +362,9 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if any post-processing failed
 	 * @see BeanPostProcessor#postProcessBeforeInitialization
 	 * @see #ORIGINAL_INSTANCE_SUFFIX
+	 *
+	 * 使用BeanPostProcessor来对给定的存在的bean实例调用postProcessBeforeInitialization方法。
+	 * 最后返回的可能是一个bean的包装类
 	 */
 	Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
 			throws BeansException;
@@ -315,6 +382,9 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if any post-processing failed
 	 * @see BeanPostProcessor#postProcessAfterInitialization
 	 * @see #ORIGINAL_INSTANCE_SUFFIX
+	 *
+	 * 使用BeanPostProcessor来对给定的存在的bean实例调用postProcessAfterInitialization方法。
+	 * 最后返回的可能是一个bean的包装类
 	 */
 	Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
 			throws BeansException;
@@ -326,6 +396,9 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * <p>Any exception that arises during destruction should be caught
 	 * and logged instead of propagated to the caller of this method.
 	 * @param existingBean the bean instance to destroy
+	 *
+	 * 销毁给定的bean实例（通常来自createBean的调用），应用DisposableBean协议以及注册的
+	 *                        DestructionAwareBeanPostProcessor。
 	 */
 	void destroyBean(Object existingBean);
 

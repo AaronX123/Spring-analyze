@@ -19,10 +19,17 @@ package org.springframework.beans.factory.config;
 import org.springframework.lang.Nullable;
 
 /**
+ * 生词
+ * disposable adj.一次性的；可用的；n.一次性容器
+ * dispose v.排列；布置；安排
+ *
+ *
  * Interface that defines a registry for shared bean instances.
  * Can be implemented by {@link org.springframework.beans.factory.BeanFactory}
  * implementations in order to expose their singleton management facility
  * in a uniform manner.
+ * 此接口定义了一个注册表对于可共享的实例，提供了通过BeanFactory实现接口从而对单例bean
+ * 有着统一的管理形式
  *
  * <p>The {@link ConfigurableBeanFactory} interface extends this interface.
  *
@@ -49,6 +56,15 @@ public interface SingletonBeanRegistry {
 	 * for runtime registration of singletons. As a consequence, a registry
 	 * implementation should synchronize singleton access; it will have to do
 	 * this anyway if it supports a BeanFactory's lazy initialization of singletons.
+	 *
+	 * 通过BeanName注册一个对象作为单例到bean工厂。
+	 * 给定的实例应该是完全实例化的，注册处不会执行任何初始化回调方法（尤其是不会调用
+	 * InitializeBean的afterPropertiesSet方法）。注册的实例不会收到任何会对其结构发生
+	 * 改变的方法请求，例如DisposableBean的destroy方法。当和一个完整的BeanFactory运行
+	 * 时，如果你的Bean允许接受初始化或者对Bean结构变更，那么注册一个BeanDefinition而
+	 * 不是一个存在的实例更好。
+	 * 通常在注册时被调用，但是也可也在运行时注册一个单例Bean时调用。因此，一个注册表的
+	 * 实现类需要保证对单例对象调用时的同步；如果它支持懒加载的话，则必须支持这一点。
 	 * @param beanName the name of the bean
 	 * @param singletonObject the existing singleton object
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
@@ -69,6 +85,13 @@ public interface SingletonBeanRegistry {
 	 * @param beanName the name of the bean to look for
 	 * @return the registered singleton object, or {@code null} if none found
 	 * @see ConfigurableListableBeanFactory#getBeanDefinition
+	 *
+	 * 通过name获取注册的单例bean。
+	 * 仅仅检查实例化后的单例bean,不会返回未初始化的BeanDefinition。
+	 * 方法的目的是手动访问注册的单例。同时能够获取描述此单例的原始的BeanDefinition。
+	 * 这个查找方法并不会考虑FactoryBean的前缀或者别名，在获取单例之前需要调用canonical方法获取最原始的
+	 * FactoryBean方法。
+	 *
 	 */
 	@Nullable
 	Object getSingleton(String beanName);
