@@ -19,6 +19,7 @@ package org.springframework.beans.factory;
 /**
  * 生词
  * mandatory adj.强制的；法定的 n.受托者
+ * compulsory adj.	(因法律或规则而) 必须做的，强制的，强迫的
  * perform v.执行;表演
  * Interface to be implemented by beans that need to react once all their properties
  * have been set by a {@link BeanFactory}: e.g. to perform custom initialization,

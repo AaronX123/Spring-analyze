@@ -66,6 +66,8 @@ public abstract class BeanFactoryUtils {
 	 * @param name the name of the bean
 	 * @return whether the given name is a factory dereference
 	 * @see BeanFactory#FACTORY_BEAN_PREFIX
+	 *
+	 * 判断这个名称是不是一个factory的间接引用，如果有“&”则说明是间接引用。
 	 */
 	public static boolean isFactoryDereference(@Nullable String name) {
 		return (name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));

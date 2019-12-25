@@ -26,9 +26,12 @@ import javax.annotation.meta.TypeQualifierNickname;
 import javax.annotation.meta.When;
 
 /**
+ * circumstance n.条件;环境;状况;境况
+ *
  * A common Spring annotation to declare that annotated elements can be {@code null} under
  * some circumstance.
  *
+ * Spring公共注解，用于在某些环境下，形参可以为null的情况
  * <p>Leverages JSR-305 meta-annotations to indicate nullability in Java to common
  * tools with JSR-305 support and used by Kotlin to infer nullability of Spring API.
  *

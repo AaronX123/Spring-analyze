@@ -85,28 +85,47 @@ import org.springframework.util.ReflectionUtils.MethodCallback;
 import org.springframework.util.StringUtils;
 
 /**
+ * 生词
+ * resort n.旅游胜地；采取；紧急措施；采取的手段 v.求助；采取某种手段
+ * implicit adj.含蓄的；隐性的；内含的；完全的
+ *
+ *
  * Abstract bean factory superclass that implements default bean creation,
  * with the full capabilities specified by the {@link RootBeanDefinition} class.
  * Implements the {@link org.springframework.beans.factory.config.AutowireCapableBeanFactory}
  * interface in addition to AbstractBeanFactory's {@link #createBean} method.
+ *
+ * 实现默认bean创建的抽象bean工厂超类，具有{@link RootBeanDefinition}类指定的全部功能。
+ * 除了AbstractBeanFactory的createBean方法之外，还实现AutowireCapableBeanFactory接口。
  *
  * <p>Provides bean creation (with constructor resolution), property population,
  * wiring (including autowiring), and initialization. Handles runtime bean
  * references, resolves managed collections, calls initialization methods, etc.
  * Supports autowiring constructors, properties by name, and properties by type.
  *
+ * 提供bean创建（具有构造函数解析）、属性填充、连接（包括自动连接）和初始化。处理运行时bean引用、
+ * 解析托管集合、调用初始化方法等。
+ * 支持自动连接构造函数、按名称的属性和按类型的属性。
  * <p>The main template method to be implemented by subclasses is
  * {@link #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)},
  * used for autowiring by type. In case of a factory which is capable of searching
  * its bean definitions, matching beans will typically be implemented through such
  * a search. For other factory styles, simplified matching algorithms can be implemented.
  *
+ * 子类要实现的主要方法是resolveDependency,用于根据类型进行自动装配。
+ * 对于能够查找自身bean definition的容器来说，通常通过这样的搜索来实现匹配bean。
+ * 对于其他工厂样式，可以实现简化的匹配算法。
  * <p>Note that this class does <i>not</i> assume or implement bean definition
  * registry capabilities. See {@link DefaultListableBeanFactory} for an implementation
  * of the {@link org.springframework.beans.factory.ListableBeanFactory} and
  * {@link BeanDefinitionRegistry} interfaces, which represent the API and SPI
  * view of such a factory, respectively.
  *
+ * 注意，这个类不承担或实现bean定义注册表功能。有关实现，请参见{@link DefaultListableBeanFactory}
+ * {@link org.springframework.beans.factory.ListableBeanFactory}和
+ * {@link BeanDefinitionRegistry}接口，表示API和SPI
+ *
+ * 分别是这样一个工厂的视图。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -123,44 +142,59 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory
 		implements AutowireCapableBeanFactory {
 
-	/** Strategy for creating bean instances. */
+	/** Strategy for creating bean instances.
+	 *  创建Bean的策略
+	 */
 	private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
 
-	/** Resolver strategy for method parameter names. */
+	/** Resolver strategy for method parameter names.
+	 *  对方法参数的策略解析器
+	 */
 	@Nullable
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-	/** Whether to automatically try to resolve circular references between beans. */
+	/** Whether to automatically try to resolve circular references between beans.
+	 *  是否自动尝试解析bean之间的循环引用
+	 *
+	 * */
 	private boolean allowCircularReferences = true;
 
 	/**
 	 * Whether to resort to injecting a raw bean instance in case of circular reference,
 	 * even if the injected bean eventually got wrapped.
+	 * 当出现循环引用时是否去注入一个原始bean实例，即使注入的实例已经被包装过。
 	 */
 	private boolean allowRawInjectionDespiteWrapping = false;
 
 	/**
 	 * Dependency types to ignore on dependency check and autowire, as Set of
 	 * Class objects: for example, String. Default is none.
+	 * 在检查和自动装配时忽略的类型
 	 */
 	private final Set<Class<?>> ignoredDependencyTypes = new HashSet<>();
 
 	/**
 	 * Dependency interfaces to ignore on dependency check and autowire, as Set of
 	 * Class objects. By default, only the BeanFactory interface is ignored.
+	 * 在检查和自动装配时忽略的接口
 	 */
 	private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
 
 	/**
 	 * The name of the currently created bean, for implicit dependency registration
 	 * on getBean etc invocations triggered from a user-specified Supplier callback.
+	 * 当前创建的bean的名称，用于从用户指定的{Supplier}回调触发的getBean 等调用方法的隐式依赖项注册。
 	 */
 	private final NamedThreadLocal<String> currentlyCreatedBean = new NamedThreadLocal<>("Currently created bean");
 
-	/** Cache of unfinished FactoryBean instances: FactoryBean name to BeanWrapper. */
+	/** Cache of unfinished FactoryBean instances: FactoryBean name to BeanWrapper.
+	 *  未完成的FactoryBean实例缓存
+	 * */
 	private final ConcurrentMap<String, BeanWrapper> factoryBeanInstanceCache = new ConcurrentHashMap<>();
 
-	/** Cache of candidate factory methods per factory class. */
+	/** Cache of candidate factory methods per factory class.
+	 *  每个工厂类的候选工厂方法缓存
+	 * */
 	private final ConcurrentMap<Class<?>, Method[]> factoryMethodCandidateCache = new ConcurrentHashMap<>();
 
 	/** Cache of filtered PropertyDescriptors: bean Class to PropertyDescriptor array. */

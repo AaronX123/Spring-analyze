@@ -419,6 +419,9 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if the bean could not be created
 	 * @since 4.3.3
 	 * @see #getBean(Class)
+	 *
+	 * 解析跟类一致的bean，返回NamedBeanHolder,其中包含Bean的名称和Bean实例。
+	 * 这是getBean的一个变种，同时保留了匹配到的beanName。
 	 */
 	<T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException;
 
@@ -430,11 +433,15 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * argument.
 	 * @param name the name of the bean to look up
 	 * @param descriptor the dependency descriptor for the requesting injection point
-	 * @return the corresponding bean instance
+	 * @return the corresponding bean instance 返回匹配的bean实例
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
 	 * @throws BeansException if the bean could not be created
 	 * @since 5.1.5
 	 * @see #getBean(String, Class)
+	 *
+	 * 解析一个Bean实例通过给定的Bean名，为暴露给目标工厂方法提供依赖描述符。
+	 * 这实际上是{@link #getBean（String，Class）}的一个变体，它支持带有InjectionPoint
+	 * 参数的工厂方法。
 	 */
 	Object resolveBeanByName(String name, DependencyDescriptor descriptor) throws BeansException;
 
@@ -448,6 +455,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if dependency resolution failed for any other reason
 	 * @since 2.5
 	 * @see #resolveDependency(DependencyDescriptor, String, Set, TypeConverter)
+	 *
+	 * 针对此工厂中的BeanDefinition解析依赖关系
 	 */
 	@Nullable
 	Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName) throws BeansException;

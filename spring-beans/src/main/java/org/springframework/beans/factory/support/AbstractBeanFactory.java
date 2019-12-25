@@ -79,6 +79,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
 /**
+ * 生词
+ * strip v.脱光衣服;脱掉大部分衣服;扒光…的衣服;进行脱衣表演;表演脱衣舞;除去，剥去(一层);(尤指)剥光
+ * n.(纸、金属、织物等)条，带;(陆地、海域等)狭长地带;带状水域;队服
+ * synthetic adj.人造的;(人工)合成的;综合(型)的 n.合成物;合成纤维(织物);合成剂
+ *
  * Abstract base class for {@link org.springframework.beans.factory.BeanFactory}
  * implementations, providing the full capabilities of the
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} SPI.
@@ -86,6 +91,9 @@ import org.springframework.util.StringValueResolver;
  * as base class for bean factory implementations which obtain bean definitions
  * from some backend resource (where bean definition access is an expensive operation).
  *
+ * 实现BeanFactory的抽象基类，提供{ConfigurableBeanFactory}SPI的全部功能。
+ * 不假设一个可列出的bean工厂：因此也可以用作bean工厂实现的基类，这些实现从一些后端资源
+ * （其中bean定义访问是一个昂贵的操作）获取bean定义。
  * <p>This class provides a singleton cache (through its base class
  * {@link org.springframework.beans.factory.support.DefaultSingletonBeanRegistry},
  * singleton/prototype determination, {@link org.springframework.beans.factory.FactoryBean}
@@ -95,12 +103,19 @@ import org.springframework.util.StringValueResolver;
  * hierarchy (delegating to the parent in case of an unknown bean), through implementing
  * the {@link org.springframework.beans.factory.HierarchicalBeanFactory} interface.
  *
+ * 这个类提供了一个单例缓存（通过它的基类{@link org.springframework.beans.factory.support.DefaultSingletonBeanRegistry}，
+ * 单例/原型确定，{@link org.springframework.beans.factory.factory bean}处理，别名，子bean定义的bean定义合并，
+ * 以及bean销毁（{@link org.springframework.beans.factory.DisposableBean}接口，自定义销毁方法）。
+ * 此外，它还可以通过实现{@link org.springframework.beans.factory.HierarchicalBeanFactory}接口来管理bean工厂层次结构
+ * （在bean未知的情况下委托给父级）。
  * <p>The main template methods to be implemented by subclasses are
  * {@link #getBeanDefinition} and {@link #createBean}, retrieving a bean definition
  * for a given bean name and creating a bean instance for a given bean definition,
  * respectively. Default implementations of those operations can be found in
  * {@link DefaultListableBeanFactory} and {@link AbstractAutowireCapableBeanFactory}.
  *
+ * 子类要实现的主要模板方法是{@link#getBeanDefinition}和{@link#createBean}，分别检索给定bean名称的bean定义和为给定bean定义创建bean实例。
+ * 这些操作的默认实现可以在{@link DefaultListableBeanFactory}和{@link AbstractAutowireCapableBeanFactory}中找到。
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Costin Leau
@@ -126,7 +141,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Nullable
 	private ClassLoader tempClassLoader;
 
-	/** Whether to cache bean metadata or rather reobtain it for every access. */
+	/** Whether to cache bean metadata or rather re-obtain it for every access. */
 	private boolean cacheBeanMetadata = true;
 
 	/** Resolution strategy for expressions in bean definition values. */
@@ -195,6 +210,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	//---------------------------------------------------------------------
 	// Implementation of BeanFactory interface
+	// BeanFactory的实现
 	//---------------------------------------------------------------------
 
 	@Override
@@ -234,21 +250,23 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param args arguments to use when creating a bean instance using explicit arguments
 	 * (only applied when creating a new instance as opposed to retrieving an existing one)
 	 * @param typeCheckOnly whether the instance is obtained for a type check,
-	 * not for actual use
+	 * not for actual use 是否获取实例是为了类型检查，而不是为了实际使用
 	 * @return an instance of the bean
 	 * @throws BeansException if the bean could not be created
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
-
+		//获取bean的名称
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		// 查看是否是人工注册的单例
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
+				//如果这个Bean在创建
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.trace("Returning eagerly cached instance of singleton bean '" + beanName +
 							"' that is not fully initialized yet - a consequence of a circular reference");
@@ -1775,6 +1793,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
+		// 如果name说明它是FactoryBean的间接引用，但是它又不是FactoryBean的实例，则抛出异常
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
@@ -1787,12 +1806,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		//此时我们已经获取到bean了，但是不知道是bean本身还是FactoryBean。
+		//如果是一个FactoryBean，则创建一个bean,除非调用者真的要这个factory bean（使用"&"获取FactoryBean）。
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
 		Object object = null;
 		if (mbd == null) {
+			//尝试
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {

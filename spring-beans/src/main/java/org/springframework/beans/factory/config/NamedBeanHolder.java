@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
 
 /**
  * A simple holder for a given bean name plus bean instance.
+ * 包含bean名和bean
  *
  * @author Juergen Hoeller
  * @since 4.3.3
