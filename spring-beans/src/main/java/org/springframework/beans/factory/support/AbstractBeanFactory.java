@@ -83,6 +83,8 @@ import org.springframework.util.StringValueResolver;
  * strip v.脱光衣服;脱掉大部分衣服;扒光…的衣服;进行脱衣表演;表演脱衣舞;除去，剥去(一层);(尤指)剥光
  * n.(纸、金属、织物等)条，带;(陆地、海域等)狭长地带;带状水域;队服
  * synthetic adj.人造的;(人工)合成的;综合(型)的 n.合成物;合成纤维(织物);合成剂
+ * delegation n.委托；委派
+ * delegate n.代表；会议代表 v.授权；委托
  *
  * Abstract base class for {@link org.springframework.beans.factory.BeanFactory}
  * implementations, providing the full capabilities of the
@@ -287,21 +289,23 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
+			//存在父容器
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
+				//如果父容器是AbstractBeanFactory，则调用父容器的doGetBean
 				if (parentBeanFactory instanceof AbstractBeanFactory) {
 					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
 							nameToLookup, requiredType, args, typeCheckOnly);
-				}
+				}//父容器不是AbstractBeanFactory且参数不为空，则调用getBean(String name, Object... args)
 				else if (args != null) {
 					// Delegation to parent with explicit args.
 					return (T) parentBeanFactory.getBean(nameToLookup, args);
-				}
+				}//父容器不是AbstractBeanFactory且bean类型不为空，则调用getBean(String name, Class<T> requiredType)
 				else if (requiredType != null) {
 					// No args -> delegate to standard getBean method.
 					return parentBeanFactory.getBean(nameToLookup, requiredType);
-				}
+				}//通过beanName获取bean
 				else {
 					return (T) parentBeanFactory.getBean(nameToLookup);
 				}
@@ -1314,6 +1318,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * or {@code null} in case of a top-level bean
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+	 *
+	 * 返回bean对应的父节点，如果给定的bean的definition是子节点，就和父节点合并。
 	 */
 	protected RootBeanDefinition getMergedBeanDefinition(
 			String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
@@ -1331,6 +1337,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (mbd == null || mbd.stale) {
 				previous = mbd;
 				mbd = null;
+				//如果这个beanDefinition没有父亲节点，则将其置为RootBeanDefinition
 				if (bd.getParentName() == null) {
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
@@ -1339,12 +1346,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					else {
 						mbd = new RootBeanDefinition(bd);
 					}
-				}
+				}//与父节点合并
 				else {
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
+						//拿到父节点的名称
 						String parentBeanName = transformedBeanName(bd.getParentName());
+						//如果传入的bean名称和父节点不同，则合并
 						if (!beanName.equals(parentBeanName)) {
 							pbd = getMergedBeanDefinition(parentBeanName);
 						}
@@ -1431,6 +1440,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * Remove the merged bean definition for the specified bean,
 	 * recreating it on next access.
 	 * @param beanName the bean name to clear the merged definition for
+	 *
+	 * 标记beanName对应的BeanDefinition为陈旧的，会使得在下一次访问时被重新合并
 	 */
 	protected void clearMergedBeanDefinition(String beanName) {
 		RootBeanDefinition bd = this.mergedBeanDefinitions.get(beanName);
@@ -1719,8 +1730,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * <p>This allows the bean factory to optimize its caching for repeated
 	 * creation of the specified bean.
 	 * @param beanName the name of the bean
+	 *
+	 * 标记特定的bean为已创建（即将创建）
+	 * 这能够允许容器能够对特定的bean的重复创建的缓存进行优化。
 	 */
 	protected void markBeanAsCreated(String beanName) {
+		//如果存在就返回
 		if (!this.alreadyCreated.contains(beanName)) {
 			synchronized (this.mergedBeanDefinitions) {
 				if (!this.alreadyCreated.contains(beanName)) {
